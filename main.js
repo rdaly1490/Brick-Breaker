@@ -40,6 +40,7 @@ window.onload = function() {
 	canvas.addEventListener('mousemove', updateMousePosition)
 
 	brickReset();
+	ballReset();
 }
 // 
 
@@ -91,7 +92,13 @@ function moveAll() {
 	if (ballBrickCol >= 0 && ballBrickCol < brickColums && 
 		ballBrickRow >= 0 && ballBrickRow < brickRows) {
 
-		brickGrid[brickIndexUndeerMouse] = false;
+		// only need to change ball direction of remove brick if brick is there, don't change for
+		// bricks that already disappeared
+		if (brickGrid[brickIndexUndeerMouse]) {
+			brickGrid[brickIndexUndeerMouse] = false;
+			// change ball direction if brick is hit
+			ballSpeedY *= -1;
+		}
 	}
 
 	var paddleTopEdgeY = canvas.height - paddleDistFromEdge;
