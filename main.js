@@ -11,6 +11,9 @@ var paddleThickness = 10;
 var paddleDistFromEdge = 60;
 var paddleX = 400;
 
+var mouseX = 0;
+var mouseY = 0;
+
 window.onload = function() {
 	canvas = document.getElementById('game-canvas');
 	canvasContext = canvas.getContext('2d');
@@ -27,7 +30,8 @@ function updateMousePosition(e) {
 
 	// for sanity sake: take mouse X coord and subtract out how far canvas is from left side
 	// and how far the user has scolled side to side.
-	var mouseX = e.clientX - rect.left - root.scrollLeft;
+	mouseX = e.clientX - rect.left - root.scrollLeft;
+	mouseY = e.clientY - rect.top - root.scrollTop;
 
 	paddleX = mouseX - paddleWidth/2;
 }
@@ -85,6 +89,9 @@ function drawAll() {
 	colorRect(0, 0, canvas.width, canvas.height, 'black');
 	colorCircle(ballX, ballY, 10, 'white');
 	colorRect(paddleX, canvas.height - paddleDistFromEdge, paddleWidth, paddleThickness);
+
+	// will use this as measuring stick to see where bricks are
+	colorText(mouseX + ',' + mouseY, mouseX, mouseY, 'yellow');
 }
 
 function colorRect(topLeftX, topLeftY, boxWidth, boxHeight, fillColor) {
@@ -99,6 +106,10 @@ function colorCircle(centerX, centerY, radius, fillColor) {
 	canvasContext.fill();
 }
 
+function colorText(showWords, textX, textY, fillColor) {
+	canvasContext.fillStyle = fillColor;
+	canvasContext.fillText(showWords, textX, textY);
+}
 
 
 
