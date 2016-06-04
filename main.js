@@ -14,10 +14,10 @@ var paddleX = 400;
 var mouseX = 0;
 var mouseY = 0;
 
-var brickWidth = 100;
-var brickHeight = 50;
-var brickColums = 8;
-var brickRows = 4;
+var brickWidth = 80;
+var brickHeight = 20;
+var brickColums = 10;
+var brickRows = 14;
 var brickGap = 2;
 
 var brickGrid  = [];
@@ -27,7 +27,6 @@ function brickReset() {
 	for (var i = 0; i < brickColums * brickRows; i++) {
 		brickGrid.push(true);
 	}
-	brickGrid[10] = false;
 }
 
 // where the magic happens
@@ -113,10 +112,15 @@ function drawAll() {
 	drawBricks();
 
 	// helps our colorText now show what columns and row we're in
-	var mouseBrickCol = mouseX / brickWidth;
-	var mouseBrickRow = mouseY / brickHeight;
+	var mouseBrickCol = Math.floor(mouseX / brickWidth);
+	var mouseBrickRow = Math.floor(mouseY / brickHeight);
+	var brickIndexUndeerMouse = rowColToArrayIndex(mouseBrickCol, mouseBrickRow);
 	// will use this as measuring stick to see where bricks are
-	colorText(mouseBrickRow + ',' + mouseBrickCol, mouseX, mouseY, 'yellow');
+	colorText(mouseBrickRow + ',' + mouseBrickCol + ': ' + brickIndexUndeerMouse, mouseX, mouseY, 'yellow');
+
+	if (brickIndexUndeerMouse >= 0 && brickIndexUndeerMouse < brickColums * brickRows) {
+		brickGrid[brickIndexUndeerMouse] = false;
+	}
 }
 
 function colorRect(topLeftX, topLeftY, boxWidth, boxHeight, fillColor) {
@@ -136,13 +140,17 @@ function colorText(showWords, textX, textY, fillColor) {
 	canvasContext.fillText(showWords, textX, textY);
 }
 
+function rowColToArrayIndex(col, row) {
+	return col + brickColums * row;
+}
+
 function drawBricks() {
 
 	for (var eachRow = 0; eachRow < brickRows; eachRow++) {
 		for (var eachColumn = 0; eachColumn < brickColums; eachColumn++) {
 
 			// for each row we go down, add an entire row (or set of columns) to our index.  For each over, add 1 column.
-			var arrayIndex = brickColums * eachRow + eachColumn;
+			var arrayIndex = rowColToArrayIndex(eachColumn, eachRow);
 
 			if (brickGrid[arrayIndex]) {
 				colorRect(brickWidth * eachColumn, brickHeight * eachRow, brickWidth - brickGap, brickHeight - brickGap, 'blue');
