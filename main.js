@@ -16,14 +16,18 @@ var mouseY = 0;
 
 var brickWidth = 100;
 var brickHeight = 50;
-var brickCount = 10;
+var brickColums = 8;
+var brickRows = 4;
+var brickGap = 2;
 
 var brickGrid  = [];
 
 function brickReset() {
-	for (var i = 0; i < brickCount; i++) {
+	// iterate over size of whole matrix, w*h
+	for (var i = 0; i < brickColums * brickRows; i++) {
 		brickGrid.push(true);
 	}
+	brickGrid[10] = false;
 }
 
 // where the magic happens
@@ -107,8 +111,12 @@ function drawAll() {
 	colorRect(paddleX, canvas.height - paddleDistFromEdge, paddleWidth, paddleThickness);
 
 	drawBricks();
+
+	// helps our colorText now show what columns and row we're in
+	var mouseBrickCol = mouseX / brickWidth;
+	var mouseBrickRow = mouseY / brickHeight;
 	// will use this as measuring stick to see where bricks are
-	colorText(mouseX + ',' + mouseY, mouseX, mouseY, 'yellow');
+	colorText(mouseBrickRow + ',' + mouseBrickCol, mouseX, mouseY, 'yellow');
 }
 
 function colorRect(topLeftX, topLeftY, boxWidth, boxHeight, fillColor) {
@@ -129,9 +137,16 @@ function colorText(showWords, textX, textY, fillColor) {
 }
 
 function drawBricks() {
-	for (var i = 0; i < brickCount; i++) {
-		if (brickGrid[i]) {
-			colorRect(brickWidth * i, 0, brickWidth-2, brickHeight, 'blue');
+
+	for (var eachRow = 0; eachRow < brickRows; eachRow++) {
+		for (var eachColumn = 0; eachColumn < brickColums; eachColumn++) {
+
+			// for each row we go down, add an entire row (or set of columns) to our index.  For each over, add 1 column.
+			var arrayIndex = brickColums * eachRow + eachColumn;
+
+			if (brickGrid[arrayIndex]) {
+				colorRect(brickWidth * eachColumn, brickHeight * eachRow, brickWidth - brickGap, brickHeight - brickGap, 'blue');
+			}
 		}
 	}
 }
