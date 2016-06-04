@@ -83,6 +83,13 @@ function moveAll() {
 		ballReset();
 	}
 
+	var ballBrickCol = Math.floor(ballX / brickWidth);
+	var ballBrickRow = Math.floor(ballY / brickHeight);
+	var brickIndexUndeerMouse = rowColToArrayIndex(ballBrickCol, ballBrickRow);
+	if (brickIndexUndeerMouse >= 0 && brickIndexUndeerMouse < (brickColums * brickRows)) {
+		brickGrid[brickIndexUndeerMouse] = false;
+	}
+
 	var paddleTopEdgeY = canvas.height - paddleDistFromEdge;
 	var paddleBottomEdgeY = paddleTopEdgeY + paddleThickness;
 	var paddleLeftEdgeX = paddleX;
@@ -112,15 +119,15 @@ function drawAll() {
 	drawBricks();
 
 	// helps our colorText now show what columns and row we're in
-	var mouseBrickCol = Math.floor(mouseX / brickWidth);
-	var mouseBrickRow = Math.floor(mouseY / brickHeight);
-	var brickIndexUndeerMouse = rowColToArrayIndex(mouseBrickCol, mouseBrickRow);
-	// will use this as measuring stick to see where bricks are
-	colorText(mouseBrickRow + ',' + mouseBrickCol + ': ' + brickIndexUndeerMouse, mouseX, mouseY, 'yellow');
-
-	if (brickIndexUndeerMouse >= 0 && brickIndexUndeerMouse < brickColums * brickRows) {
-		brickGrid[brickIndexUndeerMouse] = false;
-	}
+	// var mouseBrickCol = Math.floor(mouseX / brickWidth);
+	// var mouseBrickRow = Math.floor(mouseY / brickHeight);
+	// var brickIndexUndeerMouse = rowColToArrayIndex(mouseBrickCol, mouseBrickRow);
+	// // will use this as measuring stick to see where bricks are
+	// colorText(mouseBrickRow + ',' + mouseBrickCol + ': ' + brickIndexUndeerMouse, mouseX, mouseY, 'yellow');
+	// console.log(brickIndexUndeerMouse);
+	// if (brickIndexUndeerMouse >= 0 && brickIndexUndeerMouse < (brickColums * brickRows)) {
+	// 	brickGrid[brickIndexUndeerMouse] = false;
+	// }
 }
 
 function colorRect(topLeftX, topLeftY, boxWidth, boxHeight, fillColor) {
