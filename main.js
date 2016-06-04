@@ -14,6 +14,19 @@ var paddleX = 400;
 var mouseX = 0;
 var mouseY = 0;
 
+var brickWidth = 100;
+var brickHeight = 50;
+var brickCount = 10;
+
+var brickGrid  = [];
+
+function brickReset() {
+	for (var i = 0; i < brickCount; i++) {
+		brickGrid.push(true);
+	}
+}
+
+// where the magic happens
 window.onload = function() {
 	canvas = document.getElementById('game-canvas');
 	canvasContext = canvas.getContext('2d');
@@ -22,14 +35,17 @@ window.onload = function() {
 	setInterval(updateAll, 1000/fps);
 
 	canvas.addEventListener('mousemove', updateMousePosition)
+
+	brickReset();
 }
+// 
 
 function updateMousePosition(e) {
 	var rect = canvas.getBoundingClientRect();
 	var root = document.documentElement;
 
 	// for sanity sake: take mouse X coord and subtract out how far canvas is from left side
-	// and how far the user has scolled side to side.
+	// and how far the user has scolled side to side.  Same for Y.
 	mouseX = e.clientX - rect.left - root.scrollLeft;
 	mouseY = e.clientY - rect.top - root.scrollTop;
 
@@ -90,6 +106,7 @@ function drawAll() {
 	colorCircle(ballX, ballY, 10, 'white');
 	colorRect(paddleX, canvas.height - paddleDistFromEdge, paddleWidth, paddleThickness);
 
+	drawBricks();
 	// will use this as measuring stick to see where bricks are
 	colorText(mouseX + ',' + mouseY, mouseX, mouseY, 'yellow');
 }
@@ -111,6 +128,13 @@ function colorText(showWords, textX, textY, fillColor) {
 	canvasContext.fillText(showWords, textX, textY);
 }
 
+function drawBricks() {
+	for (var i = 0; i < brickCount; i++) {
+		if (brickGrid[i]) {
+			colorRect(brickWidth * i, 0, brickWidth-2, brickHeight, 'blue');
+		}
+	}
+}
 
 
 
