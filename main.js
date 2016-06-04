@@ -86,7 +86,11 @@ function moveAll() {
 	var ballBrickCol = Math.floor(ballX / brickWidth);
 	var ballBrickRow = Math.floor(ballY / brickHeight);
 	var brickIndexUndeerMouse = rowColToArrayIndex(ballBrickCol, ballBrickRow);
-	if (brickIndexUndeerMouse >= 0 && brickIndexUndeerMouse < (brickColums * brickRows)) {
+
+	// remove a brick if hit
+	if (ballBrickCol >= 0 && ballBrickCol < brickColums && 
+		ballBrickRow >= 0 && ballBrickRow < brickRows) {
+
 		brickGrid[brickIndexUndeerMouse] = false;
 	}
 
