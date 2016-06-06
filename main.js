@@ -15,9 +15,9 @@ var mouseX = 0;
 var mouseY = 0;
 
 var brickWidth = 80;
-var brickHeight = 20;
+var brickHeight = 40;
 var brickColums = 10;
-var brickRows = 14;
+var brickRows = 7;
 var brickGap = 2;
 
 var brickGrid  = [];
@@ -67,7 +67,7 @@ function updateAll() {
 	drawAll();
 }
 
-function moveAll() {
+function ballMove() {
 	ballX+= ballSpeedX;
 	ballY+= ballSpeedY;
 	
@@ -83,7 +83,9 @@ function moveAll() {
 	if (ballY > canvas.height) { // bottom
 		ballReset();
 	}
+}
 
+function ballBrickHandling() {
 	var ballBrickCol = Math.floor(ballX / brickWidth);
 	var ballBrickRow = Math.floor(ballY / brickHeight);
 	var brickIndexUndeerMouse = rowColToArrayIndex(ballBrickCol, ballBrickRow);
@@ -96,11 +98,34 @@ function moveAll() {
 		// bricks that already disappeared
 		if (brickGrid[brickIndexUndeerMouse]) {
 			brickGrid[brickIndexUndeerMouse] = false;
-			// change ball direction if brick is hit
-			ballSpeedY *= -1;
+
+			/////////////////////////////////////////
+
+			// HERE WE CHANGE BALL DIRECTION
+			// from the moment before the brick is hit compared to when the brick is hit, if
+			// the row changes (i.e. row 2 to 3) we want to reflect the ball vertically because we know
+			// we hit either the top of bottom.  If the column changes, we know we hit the left or
+			// right side and want to reflect the ball horizontally.  If we manage to hit a corner, we
+			// need to change both x and y (since both row and col change), so we fire both changes below.
+
+			/////////////////////////////////////////
+
+			var prevBallX = ballX - ballSpeedX;
+			var prevBallY = ballY - ballSpeedY;
+			var prevBrickCol = Math.floor(prevBallX / brickWidth);
+			var prevBrickRow = Math.floor(prevBallY / brickHeight);
+
+			if (prevBrickCol !== ballBrickCol) {
+				ballSpeedX *= -1;				
+			}
+			if (prevBrickRow !== ballBrickRow) {
+				ballSpeedY *= -1;				
+			}
 		}
 	}
+}
 
+function ballPaddleHandling() {
 	var paddleTopEdgeY = canvas.height - paddleDistFromEdge;
 	var paddleBottomEdgeY = paddleTopEdgeY + paddleThickness;
 	var paddleLeftEdgeX = paddleX;
@@ -122,23 +147,18 @@ function moveAll() {
 	}
 }
 
+function moveAll() {
+	ballMove();
+	ballBrickHandling();
+	ballPaddleHandling();
+}
+
 function drawAll() {
 	colorRect(0, 0, canvas.width, canvas.height, 'black');
 	colorCircle(ballX, ballY, 10, 'white');
 	colorRect(paddleX, canvas.height - paddleDistFromEdge, paddleWidth, paddleThickness);
 
 	drawBricks();
-
-	// helps our colorText now show what columns and row we're in
-	// var mouseBrickCol = Math.floor(mouseX / brickWidth);
-	// var mouseBrickRow = Math.floor(mouseY / brickHeight);
-	// var brickIndexUndeerMouse = rowColToArrayIndex(mouseBrickCol, mouseBrickRow);
-	// // will use this as measuring stick to see where bricks are
-	// colorText(mouseBrickRow + ',' + mouseBrickCol + ': ' + brickIndexUndeerMouse, mouseX, mouseY, 'yellow');
-	// console.log(brickIndexUndeerMouse);
-	// if (brickIndexUndeerMouse >= 0 && brickIndexUndeerMouse < (brickColums * brickRows)) {
-	// 	brickGrid[brickIndexUndeerMouse] = false;
-	// }
 }
 
 function colorRect(topLeftX, topLeftY, boxWidth, boxHeight, fillColor) {
