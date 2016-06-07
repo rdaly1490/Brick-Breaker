@@ -90,7 +90,10 @@ function ballBrickHandling() {
 	var ballBrickRow = Math.floor(ballY / brickHeight);
 	var brickIndexUndeerMouse = rowColToArrayIndex(ballBrickCol, ballBrickRow);
 
-	// remove a brick if hit
+	// remove a brick if hit, conditional allows us to check we're within bounds of game
+	// technically since we're using ball center, the ball can extend past the current index hit causing
+	// side-wall bricks to remove the following indexed brick on the other side of the game board, since
+	// it doesn't recognize bricks wrap into more rows.  Just an arr of indexes to the game.
 	if (ballBrickCol >= 0 && ballBrickCol < brickColums && 
 		ballBrickRow >= 0 && ballBrickRow < brickRows) {
 
@@ -116,10 +119,32 @@ function ballBrickHandling() {
 			var prevBrickRow = Math.floor(prevBallY / brickHeight);
 
 			if (prevBrickCol !== ballBrickCol) {
-				ballSpeedX *= -1;				
+				var adjacentBrickSide = rowColToArrayIndex(prevBrickCol, ballBrickRow);
+				var bothTestsFailed = true;
+
+				// if there's not a brick adjacent to the one hit then bounce horizontally
+				// otherwise there's a brick there so we can't hit that side.
+				if (brickGrid[adjacentBrickSide] === false) {
+					ballSpeedX *= -1;
+					bothTestsFailed = false;			
+				}
 			}
 			if (prevBrickRow !== ballBrickRow) {
-				ballSpeedY *= -1;				
+
+				if (brickGrid[adjacentBrickSide] === false) {
+					ballSpeedY *= -1;
+					bothTestsFailed = false;	
+				}				
+			}
+
+			// prevents ball from squeezing through gap between bricks if corner exposed,
+			// now bounces off corner properly
+			// |__|__|
+			//   /|  |
+			//
+			if (bothTestsFailed) {
+				ballSpeedX *= -1;
+				ballSpeedY *= -1
 			}
 		}
 	}
