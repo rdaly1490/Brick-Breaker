@@ -99,7 +99,6 @@ function ballMove() {
 }
 
 function isBrickAtColRow(col, row) {
-
 	if(col >= 0 && col < brickColums &&
 		row >= 0 && row < brickRows) {
 		 var brickIndexUnderCoord = rowColToArrayIndex(col, row);
@@ -175,8 +174,8 @@ function ballBrickHandling() {
 } 
 
 function ballPaddleHandling() {
-	var paddleTopEdgeY = canvas.height - paddleDistFromEdge;
-	var paddleBottomEdgeY = paddleTopEdgeY + paddleThickness;
+	var paddleTopEdgeY = canvas.height - paddleDistFromEdge - paddleThickness;
+	var paddleBottomEdgeY = paddleTopEdgeY + paddleThickness + paddleThickness;
 	var paddleLeftEdgeX = paddleX;
 	var paddleRightEdgeX = paddleLeftEdgeX + paddleWidth;
 
