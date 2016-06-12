@@ -15,17 +15,27 @@ var mouseX = 0;
 var mouseY = 0;
 
 var brickWidth = 80;
-var brickHeight = 40;
+var brickHeight = 20;
 var brickColums = 10;
-var brickRows = 7;
+var brickRows = 14;
 var brickGap = 2;
 
 var brickGrid  = [];
+var bricksLeft = 0;
 
 function brickReset() {
-	// iterate over size of whole matrix, w*h
-	for (var i = 0; i < brickColums * brickRows; i++) {
-		brickGrid.push(true);
+	bricksLeft = 0;
+	var i;
+
+	// set a few rows to false to create the gutter up top
+	for(i=0; i< 3*brickColums; i++) {
+		brickGrid[i] = false;
+	}
+
+	// iterate over size of matrix, w*h, use predefined i variable to start after gutter created
+	for(; i<brickColums * brickRows; i++) {
+		brickGrid[i] = true;
+		bricksLeft++;
 	}
 }
 
@@ -71,10 +81,10 @@ function ballMove() {
 	ballX+= ballSpeedX;
 	ballY+= ballSpeedY;
 	
-	if (ballX < 0) { // left
+	if (ballX < 0 && ballSpeedX < 0.0) { // left
 		ballSpeedX *= -1;
 	}
-	if (ballX > canvas.width) { // right
+	if (ballX > canvas.width && ballSpeedX > 0.0) { // right
 		ballSpeedX *= -1;
 	}	
 	if (ballY < 0) { // top
@@ -82,25 +92,40 @@ function ballMove() {
 	}
 	if (ballY > canvas.height) { // bottom
 		ballReset();
+
+		// maybe add more than 1 life later
+		brickReset();
+	}
+}
+
+function isBrickAtColRow(col, row) {
+
+	if(col >= 0 && col < brickColums &&
+		row >= 0 && row < brickRows) {
+		 var brickIndexUnderCoord = rowColToArrayIndex(col, row);
+		 return brickGrid[brickIndexUnderCoord];
+	} else {
+		return false;
 	}
 }
 
 function ballBrickHandling() {
 	var ballBrickCol = Math.floor(ballX / brickWidth);
 	var ballBrickRow = Math.floor(ballY / brickHeight);
-	var brickIndexUndeerMouse = rowColToArrayIndex(ballBrickCol, ballBrickRow);
+	var brickIndexUnderBall = rowColToArrayIndex(ballBrickCol, ballBrickRow);
 
 	// remove a brick if hit, conditional allows us to check we're within bounds of game
 	// technically since we're using ball center, the ball can extend past the current index hit causing
 	// side-wall bricks to remove the following indexed brick on the other side of the game board, since
 	// it doesn't recognize bricks wrap into more rows.  Just an arr of indexes to the game.
-	if (ballBrickCol >= 0 && ballBrickCol < brickColums && 
+	if(ballBrickCol >= 0 && ballBrickCol < brickColums &&
 		ballBrickRow >= 0 && ballBrickRow < brickRows) {
 
 		// only need to change ball direction of remove brick if brick is there, don't change for
 		// bricks that already disappeared
-		if (brickGrid[brickIndexUndeerMouse]) {
-			brickGrid[brickIndexUndeerMouse] = false;
+		if(isBrickAtColRow( ballBrickCol,ballBrickRow )) {
+			brickGrid[brickIndexUnderBall] = false;
+			bricksLeft--;
 
 			/////////////////////////////////////////
 
@@ -118,23 +143,21 @@ function ballBrickHandling() {
 			var prevBrickCol = Math.floor(prevBallX / brickWidth);
 			var prevBrickRow = Math.floor(prevBallY / brickHeight);
 
-			if (prevBrickCol !== ballBrickCol) {
-				var adjacentBrickSide = rowColToArrayIndex(prevBrickCol, ballBrickRow);
-				var bothTestsFailed = true;
+			var bothTestsFailed = true;
 
-				// if there's not a brick adjacent to the one hit then bounce horizontally
-				// otherwise there's a brick there so we can't hit that side.
-				if (brickGrid[adjacentBrickSide] === false) {
+			// if there's not a brick adjacent to the one hit then bounce horizontally
+			// otherwise there's a brick there so we can't hit that side.
+			if(prevBrickCol != ballBrickCol) {
+				if(isBrickAtColRow(prevBrickCol, ballBrickRow) == false) {
 					ballSpeedX *= -1;
-					bothTestsFailed = false;			
+					bothTestsFailed = false;
 				}
 			}
-			if (prevBrickRow !== ballBrickRow) {
-
-				if (brickGrid[adjacentBrickSide] === false) {
+			if(prevBrickRow != ballBrickRow) {
+				if(isBrickAtColRow(ballBrickCol, prevBrickRow) == false) {
 					ballSpeedY *= -1;
-					bothTestsFailed = false;	
-				}				
+					bothTestsFailed = false;
+				}
 			}
 
 			// prevents ball from squeezing through gap between bricks if corner exposed,
@@ -142,13 +165,14 @@ function ballBrickHandling() {
 			// |__|__|
 			//   /|  |
 			//
-			if (bothTestsFailed) {
+			if(bothTestsFailed) {
 				ballSpeedX *= -1;
-				ballSpeedY *= -1
+				ballSpeedY *= -1;
 			}
+
 		}
 	}
-}
+} 
 
 function ballPaddleHandling() {
 	var paddleTopEdgeY = canvas.height - paddleDistFromEdge;
@@ -169,6 +193,11 @@ function ballPaddleHandling() {
 		// will only happen if collission detected by this if statement
 		// 0.35 helps scale down the speed a bit
 		ballSpeedX = ballDistFromPaddleCenterX * 0.35;
+
+		// if when ball hits paddle no bricks left, reset the game
+		if (bricksLeft === 0) {
+			brickReset();
+		}
 	}
 }
 
